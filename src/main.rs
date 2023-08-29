@@ -12,7 +12,14 @@ fn is_directory_empty(path: &Path) -> std::io::Result<bool> {
         if should_skip_file(&path) {
             continue;
         }
-        return Ok(false);
+        if entry.metadata()?.is_dir() {
+            if !is_directory_empty(&path)? {
+                return Ok(false);
+            }
+            remove_dir_all(&path)?;
+        } else {
+            return Ok(false);
+        }
     }
     Ok(true)
 }
